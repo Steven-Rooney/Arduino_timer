@@ -1,0 +1,123 @@
+volatile int count=0;   
+volatile int countEnabled=0;
+int segCode[10] = {0b11111100, 
+          0b01100000, 
+          0b11011010, 
+          0b11110010, 
+          0b01100110, 
+          0b10110110, 
+          0b10111110, 
+          0b11100000, 
+          0b11111110, 
+          0b11110110};
+int datapin=4, latchpin=5, clockpin=6, datapin2=7, latchpin2=8, clockpin2=9;
+int tensPlace;
+int onesPlace;
+int tensSegCode;
+int onesSegCode;
+int micRead;
+int buzzerCounter;
+bool buzzerOn;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(6, OUTPUT);
+
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+
+  pinMode(10, OUTPUT);
+  buzzerOn=false;
+  buzzerCounter = 5;
+  
+  pinMode(A0, INPUT);
+  
+  attachInterrupt(0, resetCounter, FALLING);
+  
+  displayNumber(60);
+}
+
+void loop() {
+  micRead = analogRead(A0);
+  
+  if (micRead > 600 || micRead < 5) {
+    Serial.println(micRead);
+    resetCounter();
+  }
+}
+
+void displayNumber(int num) {
+  tensPlace = num/10;
+  onesPlace = num%10;
+  
+  tensSegCode = convertDigitToSegCode(tensPlace);
+  onesSegCode = convertDigitToSegCode(onesPlace);
+
+  digitalWrite(latchpin, LOW);    //enable 74595 to receive data
+  //  send 1 bit at a time, starting at the low bit
+  shiftOut(datapin, clockpin, LSBFIRST, tensSegCode);  
+  digitalWrite(latchpin, HIGH);   //show the result
+
+  digitalWrite(latchpin2, LOW);    //enable 74595 to receive data
+  //send 1 bit at a time, starting at the low bit
+  shiftOut(datapin2, clockpin2, LSBFIRST, onesSegCode);  
+  digitalWrite(latchpin2, HIGH);   //show the result
+
+}
+
+int convertDigitToSegCode(int digit) {
+  return segCode[digit];
+}
+
+void resetCounter() {
+  count=61;
+  countEnabled=1;
+  buzzerOn=false;
+  buzzerCounter = 5;
+  noTone(10);
+  setUpTimer();
+}
+
+ISR (TIMER1_COMPA_vect) {
+  //Serial.println(countEnabled);
+  //Serial.println(count);
+  //Serial.println(buzzerCounter);
+  //Serial.println(buzzerOn);
+  //Serial.println();
+  if (countEnabled==1) {
+    count--;
+    displayNumber(count);
+  }
+  if (count==0 && buzzerOn==false) {
+    countEnabled=0;
+    tone(10, 440);
+    buzzerOn=true;
+  }
+  if (countEnabled==0 && buzzerOn==true) {
+    //Serial.println(buzzerCounter);
+    buzzerCounter--;
+  }
+  if (buzzerCounter<0) {
+      noTone(10);
+      buzzerOn=false;
+  }
+}
+
+void setUpTimer() {
+  cli();
+  
+  TCCR1A=0b00000000;
+  TCCR1B=0b00000000;
+  TCNT1=0b00000000;
+  
+  TCCR1B=0b00001100;
+  OCR1A=62500;
+  
+  TIMSK1= (1<<OCIE1A);
+  
+  sei();
+}

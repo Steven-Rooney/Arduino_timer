@@ -1,1 +1,15 @@
 Timer demo. This is a project used This project was used to practice the use of interrupt registries built into the Arduino chip. Also to practice wiring and using the I/Os on the Arduino.
+
+
+This project uses interupt registers on the Arduino board to creat a 60 second timer. At the end of the 60 seconds there is a beep that runs for 5 seconds and then stops. 
+
+Built onto a bread board are the following:
+  - 2 7 segment displays to display the time
+  - 2 Switch registers to increase available outputs from the Arduino
+  - a button to reset the timer
+  - a mic to reset the time via audio queue
+
+I used a basic auto gain mic wired onto the bread board to reest the timer when it detects a loud noise (someone yelling). 
+There is also a push button wired into the bread board to use to reset the counter in the even you dont want to yell.
+
+  

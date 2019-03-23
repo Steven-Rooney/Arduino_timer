@@ -83,11 +83,7 @@ void resetCounter() {
 }
 
 ISR (TIMER1_COMPA_vect) {
-  //Serial.println(countEnabled);
-  //Serial.println(count);
-  //Serial.println(buzzerCounter);
-  //Serial.println(buzzerOn);
-  //Serial.println();
+ 
   if (countEnabled==1) {
     count--;
     displayNumber(count);

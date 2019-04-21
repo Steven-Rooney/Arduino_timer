@@ -58,12 +58,16 @@ void displayNumber(int num) {
   onesSegCode = convertDigitToSegCode(onesPlace);
 
   digitalWrite(latchpin, LOW);    //enable 74595 to receive data
+  
   //  send 1 bit at a time, starting at the low bit
+  
   shiftOut(datapin, clockpin, LSBFIRST, tensSegCode);  
   digitalWrite(latchpin, HIGH);   //show the result
 
   digitalWrite(latchpin2, LOW);    //enable 74595 to receive data
+  
   //send 1 bit at a time, starting at the low bit
+  
   shiftOut(datapin2, clockpin2, LSBFIRST, onesSegCode);  
   digitalWrite(latchpin2, HIGH);   //show the result
 
